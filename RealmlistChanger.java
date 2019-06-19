@@ -31,7 +31,7 @@ public class RealmlistChanger {
         }
     }
     public static void main(String[] args) {
-        String wowPath = "E:\\Games\\1.12 WoW\\"; // Path to WoW folder, in the format "C:\\Program Files (x86)\\World of Warcraft\\" 
+        String wowPath = "E:\\Games\\1.12 WoW\\"; 
         String realmlistPath = wowPath + "realmlist.wtf";
         String wowExecutablePath = wowPath + "WoW.exe";
         String line = "";
