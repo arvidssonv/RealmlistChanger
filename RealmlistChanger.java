@@ -1,64 +1,71 @@
-import java.awt.LayoutManager;
-import java.awt.event.*;
-import java.io.*;
-import javax.swing.*;
-
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import java.util.List;
+import java.util.ArrayList;
+import javax.swing.JLabel;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+ 
 public class RealmlistChanger {
-    public static void switchServer(String server, String realmlistPath) {
+    public static void selectServer(String selectedServer, String realmlistPath) {
         try {
-            BufferedReader file = new BufferedReader(new FileReader(realmlistPath));
-            StringBuffer inputBuffer = new StringBuffer();
-            String line = "";
-    
-            while ((line = file.readLine()) != null) {
-                if(line.contains(server)) {
-                    line = line.replaceAll("#","");
-                }
-                else if (line.charAt(0) != '#') {
-                    line = "#" + line;
-                }
-                inputBuffer.append(line);
-                inputBuffer.append('\n');
-            }
-            file.close();
-            FileOutputStream fileOut = new FileOutputStream(realmlistPath);
-            fileOut.write(inputBuffer.toString().getBytes());
-            fileOut.close();
-        } 
-        
-        catch (Exception e) {
-            System.out.println("Problem reading realmlist.wtf");
+        Files.write(Paths.get(realmlistPath), Files.lines(Paths.get(realmlistPath))
+            .map(line -> {
+                if (line.contains(selectedServer))
+                    return new String(line.replaceAll("#",""));                    
+                else if (line.charAt(0) != '#')
+                    return new String("#" + line);
+                else
+                    return line;
+            })
+            .collect(Collectors.joining("\n"))
+            .toString()
+            .getBytes());
+        } catch (FileNotFoundException ex) {
+            System.out.println("Could not find " + realmlistPath);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
-    public static void main(String[] args) {
-        String wowPath = "E:\\Games\\1.12 WoW\\"; 
+
+    List<String> getListOfServers(String realmlistPath) {
+        List<String> serverList = new ArrayList<>();
+
+        try (Stream<String> realmlistStream = Files.lines(Paths.get(realmlistPath))) {
+            serverList = realmlistStream
+                .filter(lineInFile -> lineInFile.contains("set realmlist"))
+                .map(lineWithRealmlist -> lineWithRealmlist.replace("#",""))
+                .collect(Collectors.toList());
+        } catch (FileNotFoundException ex) {
+            System.out.println("Could not find " + realmlistPath);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return serverList;
+    }
+
+    public RealmlistChanger () {
+        String wowPath = "E:\\Games\\1.12 WoW\\";
         String realmlistPath = wowPath + "realmlist.wtf";
         String wowExecutablePath = wowPath + "WoW.exe";
-        String line = "";
 
         JFrame frame = new JFrame("Realmist Changer");
         JPanel panel = new JPanel();
         JLabel lbl = new JLabel("Realmlist");
         final JComboBox<String> cb = new JComboBox<String>();
-        JButton btn = new JButton("Run");
+        JButton btn = new JButton("Launch");
 
-        try {
-            FileReader fileReader = new FileReader(realmlistPath);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.contains("set realmlist"))
-                    cb.addItem(line.replace("#",""));                
-            }
-            bufferedReader.close();
-        }
-
-        catch (FileNotFoundException ex) {
-            System.out.println("Problem reading realmlist.wtf");
-        }
-        
-        catch (IOException ex) {
-            ex.printStackTrace();
+        for (String server : getListOfServers(realmlistPath)) {
+            cb.addItem(server);            
         }
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,10 +77,12 @@ public class RealmlistChanger {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String server = cb.getSelectedItem().toString();
-                    switchServer(server, realmlistPath);
+                    String selectedServer = cb.getSelectedItem().toString();
+                    selectServer(selectedServer, realmlistPath);
                     Runtime.getRuntime().exec(wowExecutablePath, null, new File(wowPath));                                            
                     System.exit(0);
+                } catch (FileNotFoundException ex) {
+                    System.out.println("Could not find executable: " + wowExecutablePath);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }            
@@ -82,6 +91,10 @@ public class RealmlistChanger {
         cb.setVisible(true);
         lbl.setVisible(true);
         frame.setVisible(true);
-        frame.pack();            
+        frame.pack();
+    }
+
+    public static void main(String[] args) {
+        new RealmlistChanger();               
     }
 }
