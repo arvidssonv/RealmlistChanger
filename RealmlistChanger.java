@@ -37,7 +37,7 @@ public class RealmlistChanger {
         }
     }
 
-    List<String> getListOfServers(String realmlistPath) {
+    public static List<String> getListOfServers(String realmlistPath) {
         List<String> serverList = new ArrayList<>();
 
         try (Stream<String> realmlistStream = Files.lines(Paths.get(realmlistPath))) {
