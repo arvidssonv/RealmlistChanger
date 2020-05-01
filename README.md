@@ -4,9 +4,7 @@ Java program with a simple GUI for choosing a realm before launching 1.12 World 
 
 ![image](https://github.com/arvidssonv/RealmlistChanger/blob/master/img/realmlistchanger.png)
 
-### Setup
-
- The program reads from the existing realmlist.wtf file in your 1.12 WoW folder, which should be setup like this:
+The program reads from the existing realmlist.wtf file in your 1.12 WoW folder, which should be setup like this:
 ```
 set realmlist login.nostalrius.org
 set realmlist login.kronos-wow.com

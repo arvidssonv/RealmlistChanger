@@ -16,12 +16,13 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
  
 public class RealmlistChanger {
+
     public static void selectServer(String selectedServer, String realmlistPath) {
         try {
         Files.write(Paths.get(realmlistPath), Files.lines(Paths.get(realmlistPath))
             .map(line -> {
                 if (line.contains(selectedServer))
-                    return new String(line.replaceAll("#",""));                    
+                    return new String(line.replace("#",""));
                 else if (line.charAt(0) != '#')
                     return new String("#" + line);
                 else
@@ -39,11 +40,10 @@ public class RealmlistChanger {
 
     public static List<String> getListOfServers(String realmlistPath) {
         List<String> serverList = new ArrayList<>();
-
         try (Stream<String> realmlistStream = Files.lines(Paths.get(realmlistPath))) {
             serverList = realmlistStream
-                .filter(lineInFile -> lineInFile.contains("set realmlist"))
-                .map(lineWithRealmlist -> lineWithRealmlist.replace("#",""))
+                .filter(line -> line.contains("set realmlist"))
+                .map(line -> line.replace("#",""))
                 .collect(Collectors.toList());
         } catch (FileNotFoundException ex) {
             System.out.println("Could not find " + realmlistPath);
@@ -64,9 +64,7 @@ public class RealmlistChanger {
         final JComboBox<String> cb = new JComboBox<String>();
         JButton btn = new JButton("Launch");
 
-        for (String server : getListOfServers(realmlistPath)) {
-            cb.addItem(server);            
-        }
+        getListOfServers(realmlistPath).forEach(cb::addItem);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
