@@ -16,7 +16,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
  
 public class RealmlistChanger {
-
+    
+    // edits the realmlist.wtf file in order to make the game read our selected servers address.
+    // using the '#' character, we make the game ignore the other lines in the file at launch.
     public static void selectServer(String selectedServer, String realmlistPath) {
         try {
         Files.write(Paths.get(realmlistPath), Files.lines(Paths.get(realmlistPath))
@@ -38,6 +40,7 @@ public class RealmlistChanger {
         }
     }
 
+    // returns a list of all servers contained in the realmlist.wtf file.
     public static List<String> getListOfServers(String realmlistPath) {
         List<String> serverList = new ArrayList<>();
         try (Stream<String> realmlistStream = Files.lines(Paths.get(realmlistPath))) {
@@ -58,12 +61,13 @@ public class RealmlistChanger {
         String realmlistPath = wowPath + "realmlist.wtf";
         String wowExecutablePath = wowPath + "WoW.exe";
 
-        JFrame frame = new JFrame("Realmist Changer");
+        JFrame frame = new JFrame("Realmlist Changer");
         JPanel panel = new JPanel();
         JLabel lbl = new JLabel("Realmlist");
         final JComboBox<String> cb = new JComboBox<String>();
         JButton btn = new JButton("Launch");
 
+        // populate the JComboBox with the available servers
         getListOfServers(realmlistPath).forEach(cb::addItem);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,6 +75,8 @@ public class RealmlistChanger {
         panel.add(lbl);        
         panel.add(cb);
         panel.add(btn);
+
+        // launches the game with the selected servers address and then exits the program.
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
